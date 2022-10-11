@@ -1,0 +1,40 @@
+### 4.8 creating income to needs ratio (income/poverty line by household number)
+# 4.8.1 create new variable, poverty line, for each row - based on 2020 data
+df_dem <- df_dem %>%
+  mutate(poverty_line = ifelse(demo_roster_v2 == 1, 12760, 
+                               ifelse(demo_roster_v2 == 2, 17240,
+                               ifelse(demo_roster_v2 == 3, 21720,
+                               ifelse(demo_roster_v2 == 4, 26200,
+                               ifelse(demo_roster_v2 == 5, 30680,
+                               ifelse(demo_roster_v2 == 6, 35160,
+                               ifelse(demo_roster_v2 == 7, 39640,
+                               ifelse(demo_roster_v2 == 8, 44120,
+                               ifelse(demo_roster_v2 == 9, 48600,
+                               ifelse(demo_roster_v2 == 10, 53080,
+                               ifelse(demo_roster_v2 == 11, 57560,
+                               ifelse(demo_roster_v2 == 12, 62040,
+                               ifelse(demo_roster_v2 == 13, 66520,
+                               ifelse(demo_roster_v2 == 14, 71000,
+                               ifelse(demo_roster_v2 == 15, 75480,
+                               ifelse(demo_roster_v2 == 16, 79960,
+                               ifelse(demo_roster_v2 == 18, 84440,
+                               ifelse(demo_roster_v2 == 19, 88920, NA)))))))))))))))))))
+# 4.8.2 since income is in bins, use the median for each one
+df_dem <- df_dem %>%
+  mutate(income_mid = ifelse(demo_comb_income_v2 == 1, 2500, 
+                               ifelse(demo_comb_income_v2 == 2, 8500,
+                               ifelse(demo_comb_income_v2 == 3, 14000,
+                               ifelse(demo_comb_income_v2 == 4, 20500,
+                               ifelse(demo_comb_income_v2 == 5, 30000,
+                               ifelse(demo_comb_income_v2 == 6, 42500,
+                               ifelse(demo_comb_income_v2 == 7, 62500,
+                               ifelse(demo_comb_income_v2 == 8, 87500,
+                               ifelse(demo_comb_income_v2 == 9, 150000,
+                               ifelse(demo_comb_income_v2 == 10, 200000, NA)))))))))))
+# 4.8.3 create the ratio of income level to poverty line
+df_dem$income_needs_ratio <- (df_dem$income_mid)/(df_dem$poverty_line)
+sum(is.na(df_dem$income_needs_ratio))
+# 4.8.4 The federal poverty guidelines also specify a threshold for low SES households (<200% INR) and these are subdivided into: deep poverty (<50% INR), poverty (50–100% INR), and near poverty (100–200% INR)
+df_dem <- df_dem %>% mutate(INR_categorized = ifelse(income_needs_ratio < .5, "Deep Poverty",
+                                              ifelse(income_needs_ratio >= .5 & income_needs_ratio <= 1, "Poverty",
+                                              ifelse(income_needs_ratio >= 1 & income_needs_ratio <= 2, "Near Poverty", "No Poverty"))))
